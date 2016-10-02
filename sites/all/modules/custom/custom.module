@@ -1,0 +1,645 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function custom_menu() {
+    $items = array();
+
+    $items['banner'] = array(
+        'title' => t('Banner'),
+        'page callback' => 'get_banner',
+        'access callback' => TRUE
+    );
+    
+    $items['user/register/location'] = array(
+        'title' => t('Select Applicant Type'),
+        'page callback' => 'select_applicant_type',
+        'access callback' => TRUE
+    );
+
+    return $items;
+}
+
+function get_banner() {
+    return 'Banner';
+}
+
+function select_applicant_type() {
+  $output = '<div style="text-align:center;">';
+  $output .= '<br/>';
+  $output .= '<br/>';
+  $output .= '<br/>';
+  $output .= '<div>';
+  $output .=   l(t('Domestic'), 'user/register', array('attributes' => array('class' => array('btn', 'btn-primary'), 'style' => "font-size:50px;")));
+  $output .= '</div>';
+  $output .= '<br/>';
+  $output .= '<br/>';
+  $output .= '<br/>';
+  $output .= '<div>';
+  $output .=   l(t('International'), 'user/register', array('query' => array('user' => 'international'), 'attributes' => array('class' => array('btn', 'btn-success'), 'style' => "font-size:50px;")));
+  $output .= '</div>';
+  $output .= '</div>';
+  
+  return $output;
+}
+
+function custom_menu_alter(&$items) {
+  $items['user/register']['title'] = t('Create Profile');
+  $items['user/register']['type'] = MENU_CALLBACK;  
+}
+
+/**
+ * Implements hook_form_alter.
+ */
+function custom_form_alter(&$form, &$form_state, $form_id) {
+  global $user;
+  $international_user_role = 5;
+  if($form_id == 'user_register_form' || $form_id == 'user_profile_form') {
+    $user_type = 'domestic';    
+    if(isset($_GET['user']) && $_GET['user'] == 'international' && $user->uid == 0) {
+      $user_type = 'international';
+    }
+    elseif ($user->uid != 0 && array_key_exists($international_user_role, $user->roles)) {
+      $user_type = 'international';
+    }
+    
+    if($user_type == 'domestic') {
+      $form['field_nationality']['#access'] = false;
+      $form['field_home_country_experience']['#access'] = false;
+      $form['field_overseas_experience']['#access'] = false;
+      $form['field_passport_number']['#access'] = false;
+      $form['field_passport_issue_date']['#access'] = false;
+      $form['field_passport_expiry_date']['#access'] = false;
+      $form['field_country']['#weight'] = 14;
+      
+      $form['field_street_address']['und'][0]['value']['#required'] = true;
+      $form['field_city']['und'][0]['value']['#required'] = true;
+      $form['field_state']['und'][0]['value']['#required'] = true;
+      $form['field_zip_code']['und'][0]['value']['#required'] = true;
+      $form['field_country']['und'][0]['value']['#required'] = true;
+      $form['field_upload_your_resume']['und'][0]['value']['#required'] = true;
+    }
+    elseif ($user_type == 'international') {
+      $form['field_street_address']['#access'] = false;
+      $form['field_city']['#access'] = false;
+      $form['field_state']['#access'] = false;
+      $form['field_zip_code']['#access'] = false;
+      $form['field_country']['#access'] = false;
+      $form['field_preferred_location']['#access'] = false;
+      $form['field_upload_your_resume']['#access'] = false;
+      
+      
+      $form['field_nationality']['und'][0]['value']['#required'] = true;
+      $form['field_passport_number']['und'][0]['value']['#required'] = true;
+    }
+    $form['field_total_experience']['und'][0]['value']['#required'] = true;
+    
+    
+    $form['field_preferred_location']['und']['#options'] = format_preferred_location();
+    if ($form_id == 'user_register_form') {
+      array_unshift($form['#submit'], 'custom_user_register_submit');
+    }
+    $form['#submit'][] = 'custom_user_register_submit_redirect_handler';
+    $form['actions']['submit']['#value'] = t('Submit');
+    
+  }
+}
+
+function custom_user_register_submit(&$form, &$form_state) {
+  global $user;
+  if(isset($_GET['user']) && $_GET['user'] == 'international' && $user->uid == 0) {
+    $form_state['values']['roles'][5] = 1;
+  }
+  else {
+    $form_state['values']['roles'][4] = 1;
+  }
+  drupal_set_message('Thank you. Your Account has been created');
+}
+
+function custom_user_register_submit_redirect_handler(&$form, &$form_state) {
+  $form_state['redirect'] = false;
+}
+
+function format_preferred_location() {
+  $preferred_location = array();
+  $preferred_location['------INDIA-------'] = array();
+  $preferred_location['------INDIA-------']['Metros'] = array(
+      198105 => 'Ahmedabad',
+      198130 => 'Bengaluru/ Bangalore',
+      198160 => 'Chennai',
+      198185 => 'Delhi',
+      198205 => 'Gurgaon',
+      198220 => 'Hyderabad/ Secunderabad',
+      198265 => 'Kolkata',
+      198305 => 'Mumbai',
+      198325 => 'Noida/ Greater Noida',
+      198355 => 'Pune',
+  );
+  
+  
+  $preferred_location['------INDIA-------']['Union Territories'] = array(
+      198955 => 'Andaman & Nicobar',
+      198155 => 'Chandigarh',
+      198959 => 'Dadra & Nagar Haveli - Silvassa',
+      198961 => 'Daman & Diu',
+      198963 => 'Lakshdweep',
+      198350 => 'Pondicherry/ Puducherry', 
+  );
+  $preferred_location['------INDIA-------']['Andhra Pradesh'] = array(
+      198405 => 'Anantapur',
+      198407 => 'Guntakal',
+      198409 => 'Guntur',
+      198411 => 'Kakinada',
+      198413 => 'Kurnool',
+      198415 => 'Nellore',
+      198417 => 'Nizamabad',
+      198419 => 'Rajahmundry',
+      198421 => 'Tirupati',
+      198396 => 'Vijayawada',
+      198423 => 'Visakhapatnam',
+      198425 => 'Warangal',
+      198430 => 'Other City(s) in Andhra Pradesh',  
+  );
+  $preferred_location['------INDIA-------']['Arunachal Pradesh'] = array(
+      198440 => 'Itanagar',
+      198443 => 'Other City(s) in Arunachal Pradesh',
+  );
+  $preferred_location['------INDIA-------']['Assam'] = array(
+      198450 => 'Bongaigaon',
+      198452 => 'Dhubri',
+      198454 => 'Dibrugarh',
+      198210 => 'Guwahati',
+      198456 => 'Jorhat',
+      198458 => 'Sibsagar',
+      198460 => 'Silchar',
+      198462 => 'Tezpur',
+      198464 => 'Tinsukia',
+      198466 => 'Other City(s) in Assam',
+  );
+  $preferred_location['------INDIA-------']['Bihar'] = array(
+      198470 => 'Bhagalpur',
+      198472 => 'Muzaffarpur',
+      198345 => 'Patna',
+      198474 => 'Other City(s) in Bihar',
+  );
+  $preferred_location['------INDIA-------']['Chhattisgarh'] = array(
+      198482 => 'Bhilai-Durg',
+      198480 => 'Bilaspur',
+      198300 => 'Raipur',
+      198484 => 'Other City(s) in Chhattisgarh',
+  );
+  $preferred_location['------INDIA-------']['Goa'] = array(
+      198486 => 'Panjim/ Panaji',
+      198488 => 'Vasco Da Gama',
+      198201 => 'Other City(s) in Goa',
+  );
+  $preferred_location['------INDIA-------']['Gujarat'] = array(
+      198500 => 'Anand',
+      198114 => 'Ankleshwar',
+      198502 => 'Bharuch',
+      198143 => 'Bhavnagar',
+      198503 => 'Bhuj',
+      198199 => 'Gandhidham',
+      198505 => 'Gandhinagar',
+      198507 => 'Gir',
+      198242 => 'Jamnagar',
+      198509 => 'Junagarh',
+      198511 => 'Kandla',
+      198513 => 'Mehsana',
+      198515 => 'Porbandar',
+      198359 => 'Rajkot',
+      198390 => 'Surat',
+      198140 => 'Vadodara',
+      198517 => 'Valsad -Vapi',
+      198519 => 'Other City(s) in Gujarat'
+  );
+  $preferred_location['------INDIA-------']['Haryana'] = array(
+      198115 => 'Ambala',
+      198525 => 'Bhiwani',
+      198195 => 'Faridabad',
+      198527 => 'Fatehabad',
+      198529 => 'Hissar',
+      198531 => 'Jhajjar',
+      198533 => 'Jind',
+      198535 => 'Kaithal',
+      198537 => 'Karnal',
+      198539 => 'Kurukshetra',
+      198541 => 'Mahendergarh',
+      198543 => 'Narnaul',
+      198545 => 'Panchkula',
+      198547 => 'Panipat',
+      198549 => 'Rewari',
+      198551 => 'Rohtak',
+      198553 => 'Sirsa',
+      198555 => 'Sonepat',
+      198557 => 'Yamunanagar',
+      198559 => 'Other City(s) in Haryana',
+  );
+  $preferred_location['------INDIA-------']['Himachal Pradesh'] = array(
+      198565 => 'Baddi',
+      198567 => 'Bilaspur',
+      198569 => 'Chamba',
+      198571 => 'Dalhousie',
+      198573 => 'Dharamshala',
+      198575 => 'Hamirpur',
+      198577 => 'Kangra',
+      198579 => 'Kasauli',
+      198581 => 'Kinnaur',
+      198583 => 'Kullu',
+      198585 => 'Lahaul & Spiti',
+      198587 => 'Manali',
+      198589 => 'Mandi',
+      198591 => 'Nalagarh',
+      198593 => 'Parwanoo',
+      198380 => 'Shimla',
+      198595 => 'Sirmaur',
+      198597 => 'Solan',
+      198599 => 'Una',
+      198601 => 'Other City(s) in Himachal Pradesh',
+  );
+  $preferred_location['------INDIA-------']['Jammu Kashmir'] = array(
+      198610 => 'Anantnag',
+      198612 => 'Baramulla',
+      198614 => 'Budgam',
+      198616 => 'Doda',
+      198618 => 'Jammu',
+      198620 => 'Kargil',
+      198622 => 'Kathua',
+      198624 => 'Kupwara',
+      198626 => 'Leh',
+      198628 => 'Poonch',
+      198630 => 'Pulwama',
+      198632 => 'Rajouri',
+      198634 => 'Srinagar',
+      198636 => 'Udhampur',
+      198241 => 'Other City(s) in Jammu & Kashmir',
+  );
+  $preferred_location['------INDIA-------']['Jharkhand'] = array(
+      198645 => 'Bokaro',
+      198647 => 'Dhanbad',
+      198245 => 'Jamshedpur',
+      198360 => 'Ranchi',
+      198649 => 'Other City(s) in Jharkhand',
+  );
+  $preferred_location['------INDIA-------']['Karnataka'] = array(
+      198655 => 'Belgaum',
+      198657 => 'Bellary',
+      198658 => 'Bidar',
+      198659 => 'Davanagere',
+      198661 => 'Dharwad',
+      198663 => 'Gulbarga',
+      198664 => 'Hubli',
+      198665 => 'Kolar',
+      198285 => 'Mangalore',
+      198310 => 'Mysoru/ Mysore',
+      198667 => 'Other City(s) in Karnataka',
+  );
+  $preferred_location['------INDIA-------']['Kerala'] = array(
+      198165 => 'Calicut/ Kozhikode',
+      198260 => 'Cochin/ Kochi/ Ernakulam',
+      198676 => 'Kannur',
+      198678 => 'Kollam',
+      198679 => 'Kottayam',
+      198670 => 'Palakkad',
+      198135 => 'Thiruvananthapuram',
+      198672 => 'Thrissur',
+      198685 => 'Other City(s) in Kerala',
+  );
+  $preferred_location['------INDIA-------']['Madhya Pradesh'] = array(
+      198145 => 'Bhopal',
+      198215 => 'Gwalior',
+      198225 => 'Indore',
+      198230 => 'Jabalpur',
+      198690 => 'Katni',
+      198692 => 'Ratlam',
+      198694 => 'Sagar',
+      198696 => 'Satna',
+      198698 => 'Ujjain',
+      198705 => 'Other City(s) in Madhya Pradesh',
+  );
+  $preferred_location['------INDIA-------']['Maharashtra'] = array(
+      198715 => 'Ahmednagar',
+      198717 => 'Akola',
+      198719 => 'Amravati',
+      198125 => 'Aurangabad',
+      198721 => 'Buldhana',
+      198723 => 'Chandrapur',
+      198725 => 'Dhule',
+      198727 => 'Gondia',
+      198729 => 'Jalgaon',
+      198731 => 'Kolhapur',
+      198733 => 'Latur',
+      198735 => 'Lonavala',
+      198737 => 'Mahabaleshwar',
+      198315 => 'Nagpur',
+      198739 => 'Nanded',
+      198320 => 'Nasik',
+      198743 => 'Navi Mumbai',
+      198745 => 'Sangli',
+      198747 => 'Satara',
+      198749 => 'Solapur',
+      198751 => 'Thane',
+      198753 => 'Yavatmal',
+      198755 => 'Other City(s) in Maharashtra',
+  );
+  $preferred_location['------INDIA-------']['Manipur'] = array(
+      198760 => 'Imphal',
+      198762 => 'Other City(s) in Manipur',
+  );
+  $preferred_location['------INDIA-------']['Meghalaya'] = array(
+      198770 => 'Shillong',
+      198772 => 'Other City(s) in Meghalaya',
+  );
+  $preferred_location['------INDIA-------']['Mizoram'] = array(
+      198780 => 'Aizawal',
+      198782 => 'Other City(s) in Mizoram',
+  );
+  $preferred_location['------INDIA-------']['Nagaland'] = array(
+      198790 => 'Dimapur',
+      198792 => 'Kohima',
+      198794 => 'Other City(s) in Nagaland',
+  );
+  $preferred_location['------INDIA-------']['Orissa'] = array(
+      198150 => 'Bhubaneshwar',
+      198175 => 'Cuttack',
+      198800 => 'Paradeep',
+      198802 => 'Puri',
+      198365 => 'Rourkela',
+      198804 => 'Other City(s) in Orissa', 
+  );
+  $preferred_location['------INDIA-------']['Punjab'] = array(
+      198120 => 'Amritsar',
+      198810 => 'Batala',
+      198812 => 'Bathinda',
+      198814 => 'Faridkot',
+      198816 => 'Fatehgarh Sahib',
+      198818 => 'Ferozepur',
+      198820 => 'Gurdaspur',
+      198822 => 'Hoshiarpur',
+      198240 => 'Jalandhar',
+      198824 => 'Kapurthala',
+      198275 => 'Ludhiana',
+      198826 => 'Mansa',
+      198828 => 'Moga',
+      198830 => 'Mohali',
+      198832 => 'Muktsar',
+      198834 => 'Nawanshahr',
+      198836 => 'Pathankot',
+      198340 => 'Patiala',
+      198838 => 'Ropar',
+      198840 => 'Sangrur',
+      198842 => 'Other City(s) in Punjab',
+  );
+  $preferred_location['------INDIA-------']['Rajasthan'] = array(
+      198848 => 'Ajmer',
+      198852 => 'Alwar',
+      198850 => 'Bikaner',
+      198235 => 'Jaipur',
+      198854 => 'Jaisalmer',
+      198250 => 'Jodhpur',
+      198856 => 'Kota',
+      198397 => 'Udaipur',
+      198858 => 'Other City(s) in Rajasthan',
+  );
+  $preferred_location['------INDIA-------']['Sikkim'] = array(
+      198864 => 'Gangtok',
+      198866 => 'Other City(s) in Sikkim',
+  );
+  $preferred_location['------INDIA-------']['Tamil Nadu'] = array(
+      198170 => 'Coimbatore',
+      198870 => 'Cuddalore',
+      198190 => 'Erode',
+      198874 => 'Hosur',
+      198876 => 'Kanniyakumari',
+      198280 => 'Madurai',
+      198880 => 'Nagercoil',
+      198330 => 'Ooty',
+      198370 => 'Salem',
+      198882 => 'Thanjavur',
+      198884 => 'Tirunelveli',
+      198395 => 'Trichy',
+      198886 => 'Tuticorin',
+      198888 => 'Vellore',
+      198890 => 'Other City(s) in Tamil Nadu',
+  );
+  $preferred_location['------INDIA-------']['Tripura'] = array(
+      198895 => 'Agartala',
+      198897 => 'Other City(s) in Tripura',
+  );
+  $preferred_location['------INDIA-------']['Uttar Pradesh'] = array(
+      198100 => 'Agra',
+      198900 => 'Aligarh',
+      198110 => 'Allahabad',
+      198902 => 'Bareilly',
+      198904 => 'Faizabad',
+      198200 => 'Ghaziabad',
+      198906 => 'Gorakhpur',
+      198255 => 'Kanpur',
+      198270 => 'Lucknow',
+      198290 => 'Mathura',
+      198295 => 'Meerut',
+      198908 => 'Moradabad',
+      198910 => 'Muzaffarnagar',
+      198912 => 'Saharanpur',
+      198914 => 'Varanasi / Banaras',
+      198916 => 'Other City(s) in Uttar Pradesh',
+  );
+  $preferred_location['------INDIA-------']['Uttaranchal'] = array(
+      198180 => 'Dehradun',
+      198922 => 'Haldwani',
+      198924 => 'Haridwar',
+      198926 => 'Nainital',
+      198928 => 'Roorkee',
+      198920 => 'Rudrapur',
+      198930 => 'Other City(s) in Uttaranchal',
+  );
+  $preferred_location['------INDIA-------']['West Bengal'] = array(
+      198935 => 'Asansol',
+      198937 => 'Burdwan',
+      198939 => 'Durgapur',
+      198941 => 'Haldia',
+      198943 => 'Kharagpur',
+      198945 => 'Malda',
+      198947 => 'Midnapur',
+      198949 => 'Raniganj',
+      198951 => 'Siliguri',
+      198953 => 'Other City(s) in West Bengal',
+  );
+  
+  
+  $preferred_location['------INTERNATIONAL-------']['------GULF/ MIDDLE EAST-------']['Bahrain'] = array(
+      116200 => 'Manama',
+      116100 => 'Other City(s) in Bahrain',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------GULF/ MIDDLE EAST-------']['Egypt'] = array(
+      175200 => 'Cairo',
+      175100 => 'Other City(s) in Egypt',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------GULF/ MIDDLE EAST-------']['Kuwait'] = array(
+      213200 => 'Kuwait City',
+      213100 => 'Other City(s) in Kuwait',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------GULF/ MIDDLE EAST-------']['Lebanon'] = array(
+      217200 => 'Beirut',
+      217100 => 'Other City(s) in Lebanon',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------GULF/ MIDDLE EAST-------']['Oman'] = array(
+      430100 => 'Muscat',
+      260100 => 'Other City(s) in Oman',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------GULF/ MIDDLE EAST-------']['Qatar'] = array(
+      445100 => 'Doha',
+      440100 => 'Other City(s) in Qatar',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------GULF/ MIDDLE EAST-------']['Saudi Arabia'] = array(
+      455100 => 'Al Madina Al Munawarah',
+      460100 => 'Eastern Province',
+      465100 => 'Jeddah',
+      283100 => 'Other City(s) in Saudi Arabia',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------GULF/ MIDDLE EAST-------']['United Arab Emirates'] = array(
+      495100 => 'Abu Dhabi',
+      320006 => 'Al Ain',
+      320007 => 'Ajman',
+      510100 => 'Dubai',
+      320009 => 'Fujairah',
+      320010 => 'Ras Al Khaimah',
+      525100 => 'Sharjah',
+      320012 => 'Um Al Qaiwan',
+      320200 => 'Other City(s) in UAE', 
+  );
+  $preferred_location['------INTERNATIONAL-------']['------GULF/ MIDDLE EAST-------']['Other Gulf/ Middle East'] = array(
+      375100 => 'Algeria',
+      390100 => 'Iraq',
+      395100 => 'Israel',
+      400100 => 'Jordan',
+      220100 => 'Libya',
+      420100 => 'Morocco',
+      435100 => 'Palestine',
+      470100 => 'Sudan',
+      475100 => 'Syria',
+      480100 => 'Tunisia',
+      485100 => 'Turkey',
+      535100 => 'Yemen',
+      355100 => 'Other Gulf/ Middle East Location(s)',
+  );
+  
+  $preferred_location['------INTERNATIONAL-------']['------US-------']['California'] = array(
+      322001 => 'San Francisco',
+      322002 => 'Los Angeles',
+      322003 => 'Other City(s) in California',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------US-------']['Georgia'] = array(
+      322006 => 'Atlanta',
+      322007 => 'Other City(s) in Georgia',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------US-------']['Illinois'] = array(
+      322009 => 'Aurora',
+      322010 => 'Chicago',
+      322011 => 'Elgin',
+      322012 => 'Schaumburg',
+      322013 => 'Other City(s) in Illinois',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------US-------']['Maryland'] = array(
+      322015 => 'Baltimore',
+      322016 => 'Washington DC',
+      322017 => 'Other City(s) in Maryland',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------US-------']['Massachusetts'] = array(
+      322019 => 'Boston',
+      322020 => 'Other City(s) in Massachusetts',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------US-------']['Michigan'] = array(
+      322022 => 'Detroit',
+      322023 => 'Other City(s) in Michigan',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------US-------']['New Jersey'] = array(
+      322034 => 'Jersey City',
+      322035 => 'Newark',
+      322036 => 'Other City(s) in New Jersey',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------US-------']['New York'] = array(
+      322030 => 'New York City',
+      322031 => 'Other City(s) in New York',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------US-------']['North Carolina'] = array(
+      322025 => 'Albany',
+      322026 => 'Charlotte',
+      322027 => 'Raleigh',
+      322028 => 'Other City(s) in North Carolina',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------US-------']['Ohio'] = array(
+      322038 => 'Cincinnati',
+      322039 => 'Other City(s) in Ohio',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------US-------']['Oregon'] = array(
+      322041 => 'Portland',
+      322042 => 'Other City(s) in Oregon',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------US-------']['Pennsylvania'] = array(
+      322044 => 'Philadelphia',
+      322045 => 'Pittsburgh',
+      322046 => 'Other City(s) in Pennsylvania', 
+  );
+  $preferred_location['------INTERNATIONAL-------']['------US-------']['Texas'] = array(
+      322047 => 'Dallas',
+      322048 => 'Houston',
+      322049 => 'Plano',
+      322050 => 'Other City(s) in Texas',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------US-------']['Virginia'] = array(
+      322056 => 'Richmond',
+      322057 => 'Sterling',
+      322058 => 'Other City(s) in Virginia',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------US-------']['Washington'] = array(
+      322052 => 'Redmond',
+      322053 => 'Seattle',
+      322054 => 'Other City(s) in Washington',
+  );
+  $preferred_location['------INTERNATIONAL-------']['------US-------']['Other US'] = array(
+      322100 => 'Other US Location(s)',
+  );
+  
+  $preferred_location['------OTHER INTERNATIONAL-------']['------US-------']['Other US'] = array(
+      112100 => 'Australia',
+      117100 => 'Bangladesh',
+      120100 => 'Belgium',
+      137100 => 'Canada',
+      143100 => 'China',
+      172100 => 'France',
+      180100 => 'Germany',
+      195100 => 'Hong Kong',
+      199100 => 'Indonesia',
+      202100 => 'Ireland',
+      204100 => 'Italy',
+      206100 => 'Japan',
+      209100 => 'Kenya',
+      228100 => 'Malaysia',
+      229100 => 'Maldives',
+      235100 => 'Mauritius',
+      237100 => 'Mexico',
+      248100 => 'Nepal',
+      249100 => 'Netherlands',
+      252100 => 'New Zealand',
+      255100 => 'Norway',
+      265100 => 'Pakistan',
+      268100 => 'Philippines',
+      555100 => 'Quilon',
+      275100 => 'Russia & CIS',
+      287100 => 'Singapore',
+      292100 => 'South Africa',
+      293100 => 'South Korea',
+      294100 => 'Spain',
+      295100 => 'Sri Lanka',
+      272100 => 'Sweden',
+      273100 => 'Switzerland',
+      308100 => 'Thailand',
+      321100 => 'UK',
+      337100 => 'Zimbabwe',
+      550100 => 'Other International Location(s)',
+  );
+  
+  return $preferred_location; 
+}
