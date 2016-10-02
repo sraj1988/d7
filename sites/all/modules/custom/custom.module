@@ -100,7 +100,6 @@ function custom_form_alter(&$form, &$form_state, $form_id) {
     if ($form_id == 'user_register_form') {
       array_unshift($form['#submit'], 'custom_user_register_submit');
     }
-    $form['#submit'][] = 'custom_user_register_submit_redirect_handler';
     $form['actions']['submit']['#value'] = t('Submit');
     
   }
@@ -115,10 +114,6 @@ function custom_user_register_submit(&$form, &$form_state) {
     $form_state['values']['roles'][4] = 1;
   }
   drupal_set_message('Thank you. Your Account has been created');
-}
-
-function custom_user_register_submit_redirect_handler(&$form, &$form_state) {
-  $form_state['redirect'] = false;
 }
 
 function format_preferred_location() {
