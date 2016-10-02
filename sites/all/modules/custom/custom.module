@@ -5,10 +5,10 @@
  */
 function custom_menu() {
     $items = array();
-
-    $items['banner'] = array(
-        'title' => t('Banner'),
-        'page callback' => 'get_banner',
+    
+    $items['front-page'] = array(
+        'title' => t(''),
+        'page callback' => 'get_front',
         'access callback' => TRUE
     );
     
@@ -21,8 +21,8 @@ function custom_menu() {
     return $items;
 }
 
-function get_banner() {
-    return 'Banner';
+function get_front() {
+    return ' ';
 }
 
 function select_applicant_type() {
