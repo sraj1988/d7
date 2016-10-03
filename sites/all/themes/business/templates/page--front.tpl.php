@@ -106,14 +106,24 @@
         <div class="main_view">
             <div class="window">
                 <div class="image_reel">
-                    <a href="<?php print url($url1); ?>"><img src="<?php print base_path() . drupal_get_path('theme', 'business') . '/images/slide-image-1.jpg'; ?>"></a>
-                    <a href="<?php print url($url2); ?>"><img src="<?php print base_path() . drupal_get_path('theme', 'business') . '/images/slide-image-2.jpg'; ?>"></a>
-                    <a href="<?php print url($url3); ?>"><img src="<?php print base_path() . drupal_get_path('theme', 'business') . '/images/slide-image-3.jpg'; ?>"></a>
+<!--                    <a href="<?php // print url($url1); ?>"><img src="<?php // print base_path() . drupal_get_path('theme', 'business') . '/images/slide-image-1.jpg'; ?>"></a>
+                    <a href="<?php // print url($url2); ?>"><img src="<?php // print base_path() . drupal_get_path('theme', 'business') . '/images/slide-image-2.jpg'; ?>"></a>
+                    <a href="<?php // print url($url3); ?>"><img src="<?php // print base_path() . drupal_get_path('theme', 'business') . '/images/slide-image-3.jpg'; ?>"></a>-->
+                    <a href="#"><img src="<?php print base_path() . drupal_get_path('theme', 'business') . '/images/img-slider-1.jpg'; ?>" width="930px" height="320px"></a>
+                    <a href="#"><img src="<?php print base_path() . drupal_get_path('theme', 'business') . '/images/img-slider-2.jpg'; ?>" width="930px" height="320px"></a>
+                    <a href="#"><img src="<?php print base_path() . drupal_get_path('theme', 'business') . '/images/img-slider-3.jpg'; ?>" width="930px" height="320px"></a>
+                    <a href="#"><img src="<?php print base_path() . drupal_get_path('theme', 'business') . '/images/img-slider-4.jpg'; ?>" width="930px" height="320px"></a>
+                    <a href="#"><img src="<?php print base_path() . drupal_get_path('theme', 'business') . '/images/img-slider-5.jpg'; ?>" width="930px" height="320px"></a>
                 </div>
                 <div class="descriptions">
-                    <div class="desc" style="display: none;"><?php print check_markup(theme_get_setting('slide1_desc','business')); ?></div>
-                    <div class="desc" style="display: none;"><?php print check_markup(theme_get_setting('slide2_desc','business')); ?></div>
-                    <div class="desc" style="display: none;"><?php print check_markup(theme_get_setting('slide3_desc','business')); ?></div>
+                    <!--<div class="desc" style="display: none;"><?php //  print check_markup(theme_get_setting('slide1_desc','business')); ?></div>-->
+                    <!--<div class="desc" style="display: none;"><?php // print check_markup(theme_get_setting('slide2_desc','business')); ?></div>-->
+                    <!--<div class="desc" style="display: none;"><?php // print check_markup(theme_get_setting('slide3_desc','business')); ?></div>-->
+                    <div class="desc" style="display: none;"></div>
+                    <div class="desc" style="display: none;"></div>
+                    <div class="desc" style="display: none;"></div>
+                    <div class="desc" style="display: none;"></div>
+                    <div class="desc" style="display: none;"></div>
                 </div>
             </div>
         
@@ -121,6 +131,8 @@
                 <a rel="1" href="#">1</a>
                 <a rel="2" href="#">2</a>
                 <a rel="3" href="#">3</a>
+                <a rel="4" href="#">4</a>
+                <a rel="5" href="#">5</a>
             </div>
         </div>
       </div><!-- EOF: #banner -->
@@ -212,25 +224,25 @@
     <div id="footer-saran" class="clearfix">
      <div id="footer-wrap">
              <div class="footer-box">
-                <h3>Entry level</h3>
-                <div class="image"><img src="<?php echo $path; ?>/images/img1.png" width="158" height="97" alt=""></div>
-                <h5>Give a flying start to your career</h5>
+                <h3>Profile Verification</h3>
+                <!--<div class="image"><img src="<?php // echo $path; ?>/images/img1.png" width="158" height="97" alt=""></div>-->
+                <h5>If you are sure that your profile is being verified and surpassed further to extract the relevant job opening for you, you need to bring some effort in it. But don't worry. Let this effort go in our hand. Our professionals will get this job done for you without any further fuss. You only need to mention your basic information, which is needed for your profile verification; and rest will only be the best. </h5>
              </div>
              <div class="footer-box">
-                <h3>Mid level</h3>
-                <div class="image"><img src="<?php echo $path; ?>/images/img2.png" width="132" height="97" alt=""></div>
-                <h5>Rise to the next level of success</h5>
+                <h3>Cover Letters</h3>
+                <!--<div class="image"><img src="<?php // echo $path; ?>/images/img2.png" width="132" height="97" alt=""></div>-->
+                <h5>One of the essential aspects that we believe to bring the first impression among the recruiters and the employers is an impressive cover letter. We at "Shinning your Career" craft the most informative, communicative and impressive cover letter for the ardent job seekers focusing on the experience, communication skills, professional qualifications and experience, personality performance and even the quality of professionalism. When everything is clustered in a much impressive manner, we bring the best cover letter all for you. </h5>
              </div>
       
              <div class="footer-box">
-                <h3>Professional Level</h3>
-                <div class="image"><img src="<?php echo $path; ?>/images/img3.png" width="132" height="97" alt=""></div>
-                <h5>Eposure, Expertise,Existenc
+                <h3>Resume Guide</h3>
+                <!--<div class="image"><img src="<?php // echo $path; ?>/images/img3.png" width="132" height="97" alt=""></div>-->
+                <h5>Our special resume guide will help you bring right information and inspiration to find the right job for you. A professionally developed resume brings the best impact among the reputed firms and the recruiters and so we guide you to craft the most impressive and professional resume and upload in your profile. A professional resume guidance will help you to get helped in enhancing your profile strength and curb your anxiety of finding the best job. </h5>
              </div>
              <div class="footer-box remove-margin">
-                <h3>Senior level</h3>
-                <div class="image"><img src="<?php echo $path; ?>/images/img4.png" width="132" height="97" alt=""></div>
-                <h5>You have the shine , Flourish it.</h5>
+                <h3>Career Alerts</h3>
+                <!--<div class="image"><img src="<?php // echo $path; ?>/images/img4.png" width="132" height="97" alt=""></div>-->
+                <h5>We understand the extent of worries you have in your mind when you are job less or planning to switch. Well, but this competitive era will not allow you to sit and wait for your turn; regular jobs alerts will help you to stay updated and bring the best job opportunities for you in the form of emails and sms. We make this alert job alert active for you when you are registered to us and become a regular user of our website. Stay connected and get leveraged of these job alerts whenever you update your profile on our website.</h5>
              </div>
     </div>
     </div>
