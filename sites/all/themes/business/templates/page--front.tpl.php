@@ -159,7 +159,7 @@
     </div>
   <?php else:?>
     <div class="home-highlight-box">
-        <h2>Register Free <br>
+        <h2>Register <br>
         &amp; Apply 
         </h2>
     </div>
